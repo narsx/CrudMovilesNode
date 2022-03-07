@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+        <h1>Login con Google</h1>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <div
+          id="g_id_onload"
+          data-client_id="200035906463-a5r29dkom41r4m0vs0a7pikjs0u0q0rs.apps.googleusercontent.com"
+          data-auto_prompt="false"
+          data-callback="handleCredentialResponse"
+        ></div>
+        <div
+          class="g_id_signin"
+          data-type="standard"
+          data-size="large"
+          data-theme="outline"
+          data-text="sign_in_with"
+          data-shape="rectangular"
+          data-logo_alignment="left"
+        ></div>
+    
+        <button id="deslogearse-google">Deslogearse de Google</button>
+        <script>
+          const boton = document.getElementById('deslogearse-google');
+          boton.onclick = () =>{
+            google.accounts.id.disableAutoSelect();
+            google.accounts.id.revoke( localStorage.getItem('email'));
+            localStorage.clear();
+            location.reload();
+          }
+          function handleCredentialResponse(response) {
+            // decodeJwtResponse() is a custom function defined by you
+            // to decode the credential response.
+            //const responsePayload = decodeJwtResponse(response.credential);
+            console.log(response.credential);
+            const body = {'id_token':response.credential }
+            fetch("http://localhost:3000/google", {
+              method: "POST",
+              body: JSON.stringify(body),
+              headers: {
+                "Content-type": "application/json; charset=UTF-8",
+              },
+            })
+              .then((response) => response.json())
+              .then((json) =>{ console.log(json);
+                localStorage.setItem("email",json.miusuario.correo);
+              });
+          }
+        </script>
+</body>
+</html>

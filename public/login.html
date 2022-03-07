@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="login">
+        <label for="correo">Correo: </label>
+        <input type="email" id="correo">
+        <label for="password">Password: </label>
+        <input type="password" id="password">
+        <button id="btnLogin">Login</button>
+    </div>
+    <script>    
+        let btnLogin = document.getElementById('btnLogin');
+        btnLogin.addEventListener('click',hacerLogin);
+        function hacerLogin(){
+            const ruta = getAbsolutePath() +'login'
+            fetch(ruta, {
+                method: 'POST',
+                body: JSON.stringify({
+                    correo: document.getElementById('correo').value,
+                    password: document.getElementById('password').value
+                }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+                })
+                .then((response) => response.json())
+                .then((json) => alert(json.msg + "Token: " + json.token))
+                        }
+
+           function getAbsolutePath() {
+                var loc = window.location;
+                var pathName = loc.pathname.substring(0, loc.pathname.lastIndexOf('/') + 1);
+                return loc.href.substring(0, loc.href.length - ((loc.pathname + loc.search + loc.hash).length - pathName.length));
+            }
+    
+    </script>
+</body>
+</html>

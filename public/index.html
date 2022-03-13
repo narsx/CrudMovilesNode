@@ -4,54 +4,136 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <title>Document</title>
+    <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-        <h1>Login con Google</h1>
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
-        <div
-          id="g_id_onload"
-          data-client_id="200035906463-a5r29dkom41r4m0vs0a7pikjs0u0q0rs.apps.googleusercontent.com"
-          data-auto_prompt="false"
-          data-callback="handleCredentialResponse"
-        ></div>
-        <div
-          class="g_id_signin"
-          data-type="standard"
-          data-size="large"
-          data-theme="outline"
-          data-text="sign_in_with"
-          data-shape="rectangular"
-          data-logo_alignment="left"
-        ></div>
+    <section class="login-block">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12">
+                    <form class="md-float-material form-material" action="#" method="POST">
+                        <div class="auth-box card">
+                            <div class="card-block">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h3 class="text-center heading">Login</h3>
+                                    </div>
+                                </div>
+                               <div class="form-group form-primary"> <input type="text" class="form-control" name="email" value="" placeholder="Email" id="email"> </div>
+                                <div class="form-group form-primary"> <input type="password" class="form-control" name="password" placeholder="Password" value="" id="password"> </div>
+                                <div class="row">
+                                    <div class="col-md-12"> <input type="button" class="btn btn-primary btn-md btn-block waves-effect text-center m-b-20" value="Signup Now" id="btnLogin">   </div>
+                                </div>
+                                <div class="or-container">
+                                    <div class="line-separator"></div>
+                                    <div class="or-label">or</div>
+                                    <div class="line-separator"></div>
+                                </div>
+                                <script src="https://accounts.google.com/gsi/client" async defer></script>
+                                <div class="col-sm-12">
+                                                <div
+                                id="g_id_onload"
+                                data-client_id="200035906463-a5r29dkom41r4m0vs0a7pikjs0u0q0rs.apps.googleusercontent.com"
+                                data-auto_prompt="false"
+                                data-callback="handleCredentialResponse"
+                                ></div>
+                                <div
+                                class="g_id_signin"
+                                data-type="standard"
+                                data-size="large"
+                                data-theme="outline"
+                                data-text="sign_in_with"
+                                data-shape="rectangular"
+                                data-logo_alignment="left"
+                                ></div>
+                                <div class="or-container">
+                                    <div class="line-separator"></div>
+                                </div>
+                                <button id="deslogearse-google">Deslogearse de Google</button>
+                                <p class="text-inverse text-center">Already have an account? <a href="" data-abc="true">Login</a></p>
+         </div>
+      </div>
+    </form>
     
-        <button id="deslogearse-google">Deslogearse de Google</button>
-        <script>
-          const boton = document.getElementById('deslogearse-google');
-          boton.onclick = () =>{
-            google.accounts.id.disableAutoSelect();
-            google.accounts.id.revoke( localStorage.getItem('email'));
-            localStorage.clear();
-            location.reload();
-          }
-          function handleCredentialResponse(response) {
-            // decodeJwtResponse() is a custom function defined by you
-            // to decode the credential response.
-            //const responsePayload = decodeJwtResponse(response.credential);
-            console.log(response.credential);
-            const body = {'id_token':response.credential }
-            fetch("http://localhost:3000/google", {
-              method: "POST",
-              body: JSON.stringify(body),
-              headers: {
-                "Content-type": "application/json; charset=UTF-8",
-              },
-            })
-              .then((response) => response.json())
-              .then((json) =>{ console.log(json);
-                localStorage.setItem("email",json.miusuario.correo);
-              });
-          }
-        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+      var myHeaders = new Headers();
+      myHeaders.append('Content-type','application/json; charset=UTF-8');
+      myHeaders.append('x-token',localStorage.getItem("token"));
+
+        let btnLogin = document.getElementById("btnLogin");
+        btnLogin.addEventListener("click", hacerLogin);
+        function hacerLogin() {
+          const ruta = getAbsolutePath() + "login";
+          fetch(ruta, {
+            method: "POST",
+            body: JSON.stringify({
+              correo: document.getElementById("email").value,
+              password: document.getElementById("password").value,
+            }),
+            headers: myHeaders,
+          })
+            .then((response) => response.json())
+            .then((json) => redirect(json))
+            .then(addTokenHeader(json.token));
+
+         
+        }
+        function redirect(json){
+            if(json.token){
+                window.location.href="/moviles.html"
+            }else{
+                alert(json.msg)
+            }
+        }
+        function addTokenHeader(token){
+          localStorage.setItem("token",token);
+          myHeaders.append("x-token",token)
+        }
+  
+        function getAbsolutePath() {
+          var loc = window.location;
+          var pathName = loc.pathname.substring(
+            0,
+            loc.pathname.lastIndexOf("/") + 1
+          );
+          return loc.href.substring(
+            0,
+            loc.href.length -
+              ((loc.pathname + loc.search + loc.hash).length - pathName.length)
+          );
+        }
+  
+        const boton = document.getElementById("deslogearse-google");
+        boton.onclick = () => {
+          google.accounts.id.disableAutoSelect();
+          google.accounts.id.revoke(localStorage.getItem("email"));
+          localStorage.clear();
+          location.reload();
+        };
+        function handleCredentialResponse(response) {
+          // decodeJwtResponse() is a custom function defined by you
+          // to decode the credential response.
+          //const responsePayload = decodeJwtResponse(response.credential);
+          console.log(response.credential);
+          const body = { id_token: response.credential };
+          fetch("http://localhost:3000/google", {
+            method: "POST",
+            body: JSON.stringify(body),
+            headers: myHeaders,
+          })
+            .then((response) => response.json())
+            .then((json) => {
+              console.log(json);
+              localStorage.setItem("email", json.miusuario.correo);
+            });
+        }
+      </script>
 </body>
 </html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Listado de moviles</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <div class="container">
+    <h1 class="col-12">Lista de Moviles</h1>
+    <button class="btn btn-secondary" id="btnMoviles">Cargar Moviles</button>
+    <button class="btn btn-secondary" id="btnMovil">Carga Movil</button>
+
+
+    <button class="btn btn-danger" id="btnBorraMovil">Borra Movil</button>
+    <button type="button" class="btn btn-primary" id="abreParaInsertar">
+        Nuevo Movil
+    </button>
+    <input type="text" id="idMovil" value="">
+    <div id="formulario">
+
+
+    </div><br>
+    <table  class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Lanzamiento</th>
+                <th scope="col">Sistema</th>
+                <th scope="col">Imagen</th>
+                <th colspan=2 scope="col">Operaciones</th>
+              </tr>
+        </thead>
+        <tbody id="tablaMoviles">
+            
+        </tbody>
+    </table>
+    <div id="divMoviles"></div>
+</div>
+    <!---*************** VENTANA MODAL ***************-->
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Modal Heading</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <p>ID: <input type="text" name="id" id="id"></p> 
+                    <p>Nombre: <input type="text" name="nombre" id="nombre"></p>
+                    <p>Tipo: <input type="text" name="terminal" id="terminal"></p>
+                    <p>Lanzamineto: <input type="text" name="anio_lanzamiento" id="anio_lanzamiento"></p>
+                    <p>Sistema: <input type="text" name="sistema" id="sistema"></p>
+                    <p>Imagen: <input type="file" name="imagen" id="imagen-subida"></p>
+                    <p><img src="" id="imagen" height="100" width="100"></p>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button id="btnInsertaMovil">Inserta Movil</button>
+                    <button id="btnActualizaMovil" class="btn btn-primary" data-dismiss="modal">Actualiza
+                        Movil</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--- *************** FIN DE VENTANA MODAL **************-->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script>
+        const token = localStorage.getItem("token");
+        document.getElementById("btnMoviles").addEventListener('click', cargaMoviles);
+        document.getElementById("btnMovil").addEventListener('click', cargaMovil);
+        document.getElementById("btnActualizaMovil").addEventListener('click', actualizaMovil);
+        document.getElementById("btnInsertaMovil").addEventListener('click', insertaMovil);
+        document.getElementById("btnBorraMovil").addEventListener('click', borraMovil);
+        document.getElementById("abreParaInsertar").addEventListener('click', abreParaInsertar);
+
+        let btnInsertaMovil = document.getElementById("btnInsertaMovil");
+        let btnActualizaMovil = document.getElementById("btnActualizaMovil");
+
+        function cargaMoviles() {
+            let tabla = document.getElementById("tablaMoviles");
+            fetch('http://localhost:3000/webresources/generic/moviles/', {
+                headers: {
+                    'x-token': token,
+                }
+            })
+                .then(response => response.json())
+                .then(json => {
+                    console.log(json);
+                    //bucle para eliminar todas las filas de la tabla
+                    while (tabla.firstChild) {
+                        tabla.removeChild(tabla.firstChild);
+                    }
+                    //recorre todas los moviles del array de moviles
+                    for (i = 0; i <= json.length; i++) {
+                        
+                        let fila = document.createElement("tr");
+                        let celdaId = document.createElement("td");
+                        celdaId.textContent = json[i].id;
+                        let celdaNombre = document.createElement("td");
+                        celdaNombre.textContent = json[i].nombre;
+                        let celdaTerminal = document.createElement("td");
+                        celdaTerminal.textContent = json[i].terminal;
+                        let celdaAnio_lanzamiento = document.createElement("td");
+                        celdaAnio_lanzamiento.textContent = json[i].anio_lanzamiento;
+                        let celdaSistema = document.createElement("td");
+                        celdaSistema.textContent = json[i].sistema;
+                        let celdaImagen = document.createElement("td");
+                        celdaImagen.innerHTML = "<img src='imagenes/" + json[i].imagen + "' height='100' width='100'>";
+                        /*** CELDA BORRAR ****/
+                        
+                        let celdaBorrar = document.createElement("td");
+                        let btnBorrar = document.createElement("button");
+                        btnBorrar.setAttribute("onclick", "borraMovilPorId('"
+                            + json[i].id + "')");
+                        btnBorrar.className="btn btn-danger";
+                        btnBorrar.textContent = "Borrar";
+                        celdaBorrar.appendChild(btnBorrar);
+                        /*** CELDA ACTUALIZAR ****/
+                        let celdaActualizar = document.createElement("td");
+                        let btnActualizar = document.createElement("button");
+                        btnActualizar.setAttribute("onclick", "cargaMovilPorId('"
+                            + json[i].id + "')");
+                        btnActualizar.textContent = "Actualizar";
+                        btnActualizar.className="btn btn-warning"
+                        celdaActualizar.appendChild(btnActualizar);
+                        
+                        fila.appendChild(celdaId);
+                        fila.appendChild(celdaNombre);
+                        fila.appendChild(celdaTerminal);
+                        fila.appendChild(celdaAnio_lanzamiento);
+                        fila.appendChild(celdaSistema);
+                        fila.appendChild(celdaImagen);
+                        fila.appendChild(celdaBorrar);
+                        fila.appendChild(celdaActualizar);
+
+                        tabla.appendChild(fila);
+
+                    }//fin de for
+
+                })
+        }
+
+        function cargaMovil() {
+            let idMovil = document.getElementById("idMovil").value;
+            cargaMovilPorId(idMovil);
+            
+        }
+
+        function cargaMovilPorId(idMovil) {
+            $('#myModal').modal('show');
+
+            btnInsertaMovil.style.display = "none";
+            btnActualizaMovil.style.display = "inline";
+            fetch('http://localhost:3000/webresources/generic/movil/' + idMovil, {
+                headers: {
+                    'x-token': localStorage.getItem("token"),
+                }
+            })
+                .then(response => response.json())
+                .then(json => {
+                    document.getElementById("formulario").style.display = "block";
+                    document.getElementById("id").value = json.id;
+                    document.getElementById("nombre").value = json.nombre;
+                    document.getElementById("terminal").value = json.terminal;
+                    document.getElementById("anio_lanzamiento").value = json.anio_lanzamiento;
+                    document.getElementById("sistema").value = json.sistema;
+                    document.getElementById("imagen").src = "imagenes/" + json.imagen; 
+                });
+        }
+
+        function abreParaInsertar() {
+            $('#myModal').modal('show');
+
+            btnInsertaMovil.style.display = "inline";
+            btnActualizaMovil.style.display = "none";
+        }
+        function actualizaMovil() {
+            subeImagen().then(nombreImagen => {
+                fetch('http://localhost:3000/webresources/generic/moviles/' + document.getElementById("id").value, {
+                  
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        id: document.getElementById("id").value,
+                        nombre: document.getElementById("nombre").value,
+                        terminal: document.getElementById("terminal").value,
+                        anio_lanzamiento: document.getElementById("anio_lanzamiento").value,
+                        sistema: document.getElementById("sistema").value,
+                        imagen: nombreImagen
+                    }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                        'x-token': localStorage.getItem("token"),
+                    },
+                })
+                    .then((response) => response.json())
+                    .then((json) => {
+                        console.log(json);
+                        cargaMoviles();
+                    });
+            });
+        }
+
+        function subeImagen() {
+            let imagen = document.querySelector("#imagen-subida");
+
+            let formData = new FormData();
+            formData.append("imagen", imagen.files[0]);
+
+            return fetch('http://localhost:3000/subir', {
+                method: 'POST',
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((json) => {
+                    console.log(json.msg);
+                    return json.nombreTemp;
+                })
+                .catch(error => console.error(error));
+        }
+
+        function insertaMovil() {
+            subeImagen().then(nombreImagen => {
+                fetch('http://localhost:3000/webresources/generic/moviles/', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nombre: document.getElementById("nombre").value,
+                        terminal: document.getElementById("terminal").value,
+                        anio_lanzamiento: document.getElementById("anio_lanzamiento").value,
+                        sistema: document.getElementById("sistema").value,
+                        imagen: nombreImagen,
+                    }),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                        'x-token': localStorage.getItem("token"),
+                    },
+                })
+                    .then((response) => response.json())
+                    .then((json) => console.log(json));
+            });
+        }
+
+        function borraMovil() {
+            let idMovil = document.getElementById("idMovil").value;
+            borraMovilPorId(idMovil);
+        }
+        function borraMovilPorId(idMovil) {
+            fetch('http://localhost:3000/webresources/generic/moviles/' + idMovil, {
+                method: 'DELETE',
+                headers: {
+                    'x-token': localStorage.getItem("token"),
+                },
+            });
+            document.getElementById("idMovil").value="";
+        }
+    </script>
+</body>
+
+</html>

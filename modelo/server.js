@@ -81,7 +81,7 @@ class Server {
             }
           );
         //Get muestra los movilesse require pasarle la id.
-        this.app.get('/webresources/generic/moviles/:id', async function (req, res) {
+        this.app.get('/webresources/generic/movil/:id', async function (req, res) {
             const id = req.params.id;
             let moviles = await Movil.findById(id);
             res.json(
@@ -199,13 +199,13 @@ class Server {
         }
         
         /* Esperamos un archivo con el nombre de un archivo */
-        if(!req.files.archivo){
+        if(!req.files.imagen){
           res.status(400).json({
             msg:'No se han mandado archivos',
           });
         }else{
-          const archivo = req.files.archivo;
-          const nombreCortado = archivo.name.split(".");
+          const imagen = req.files.imagen;
+          const nombreCortado = imagen.name.split(".");
           const extension = nombreCortado[nombreCortado.length -1];
           //Validar la extension
           const extensionesValidar = ['jpg','png','jpeg','gif'];
@@ -217,8 +217,8 @@ class Server {
           //Cambia el nombre 
           const nombreTemp = uuidv4() + "." + extension;
           const path = require('path');
-          const uploadPath = path.join(__dirname,'../archivos/',nombreTemp);
-          archivo.mv(uploadPath,function(err){
+          const uploadPath = path.join(__dirname,'../public/imagenes/',nombreTemp);
+          imagen.mv(uploadPath,function(err){
             if(err){
               return res.status(500).json(err);
             }
@@ -226,7 +226,7 @@ class Server {
               msg:'Archivo subido con exito',
               uploadPath,
               extension,
-              archivo
+              nombreTemp
             });
           });
         }
